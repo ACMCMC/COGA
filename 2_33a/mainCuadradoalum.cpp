@@ -170,9 +170,12 @@ int main()
 
 		// Medio cuadrado
 		glUseProgram(shaderProgram);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_TRIANGLES);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glBindVertexArray(VAOCuadrado);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDrawArrays(GL_TRIANGLES, 3, 6);
 				
 		glBindVertexArray(0); // no need to unbind it every time 
 		 
