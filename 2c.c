@@ -85,7 +85,7 @@ void myDisplay(void) {
 
 	glMatrixMode(GL_MODELVIEW); //Matriz del Modelo
 	glLoadIdentity(); // Inicializamos la matriz del modelo a la identidad
-	//myEjes();
+	myEjes();
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
