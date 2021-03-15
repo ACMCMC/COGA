@@ -76,6 +76,7 @@ void myDisplay(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	myCamara(); // para colocar la camara por ahora nada
 
+	glViewport(0, 0, W_WIDTH, W_HEIGHT);
 
 	glMatrixMode(GL_MODELVIEW); //Matriz del Modelo
 	glLoadIdentity(); // Inicializamos la matriz del modelo a la identidad
@@ -89,8 +90,12 @@ void myDisplay(void) {
 	glBegin(GL_LINE_LOOP);
 	glCallList(lista);
 	glEnd();
-
 	glPopMatrix();
+
+	glViewport(W_WIDTH, 0, W_WIDTH, W_HEIGHT);
+
+	glLoadIdentity(); // Inicializamos la matriz del modelo a la identidad
+	myEjes();
 
 	glPushMatrix();
 	glTranslatef(.5f, 0.0f, 0.0f);
@@ -150,7 +155,7 @@ int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 
 	glutInitWindowPosition(0, 0);
-	glutInitWindowSize(W_WIDTH, W_HEIGHT);
+	glutInitWindowSize(W_WIDTH*2, W_HEIGHT);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 	glutCreateWindow("Dibujar cubos");
 
