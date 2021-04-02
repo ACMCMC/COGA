@@ -205,21 +205,21 @@ int main()
 	dibujaEsfera();
 
 	// ObjetoSistemaSolar(glm::vec3 color, float escala, float velocidad_rotacion, float velocidad_rotacion_orbita, float distancia_centro, unsigned int VAO)
-	ObjetoSistemaSolar sol(glm::vec3(1.0f, 1.0f, 1.0f), 2, 0.5, 0, 0, VAOEsfera);
-	ObjetoSistemaSolar mercurio(glm::vec3(0.48f, 0.49f, 0.5f), 0.1, 0.5, 2, 1.5, VAOEsfera);
-	ObjetoSistemaSolar venus(glm::vec3(0.7f, 0.7f, 0.7f), 0.3, 0.3, 0.3, 2.5, VAOEsfera);
-	ObjetoSistemaSolar tierra(glm::vec3(0.28f, 0.21f, 0.16f), 2, 0.7, 0.7, 3, VAOEsfera);
-	ObjetoSistemaSolar luna(glm::vec3(0.5f, 0.5f, 0.5f), 0.6, 0.5, 0.2, 1, VAOEsfera);
-	ObjetoSistemaSolar iss(glm::vec3(0.3f, 0.3f, 0.3f), 0.7, 0.5, 1, 0.5, VAOEsfera);
-	ObjetoSistemaSolar marte(glm::vec3(0.66f, 0.14f, 0.2f), 0.2, 1.2, 1.2, 4, VAOEsfera);
-	ObjetoSistemaSolar jupiter(glm::vec3(0.65f, 0.61f, 0.52f), 8, 5, 3, 6, VAOEsfera);
-	ObjetoSistemaSolar saturno(glm::vec3(0.2f, 0.23f, 0.27f), 6, 0.2, 0.2, 8, VAOEsfera);
-	ObjetoSistemaSolar urano(glm::vec3(0.3f, 0.81f, 0.93f), 2, 0.5, 1.3, 10, VAOEsfera);
-	ObjetoSistemaSolar neptuno(glm::vec3(0.24f, 0.33f, 0.91f), 1.8, 3, 2.6, 11, VAOEsfera);
+	ObjetoSistemaSolar sol(glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.5f, 0.0f, 0.0f, VAOEsfera);
+	ObjetoSistemaSolar mercurio(glm::vec3(0.48f, 0.49f, 0.5f), 0.1f, 0.5f, 2.0f, 1.5f, VAOEsfera);
+	ObjetoSistemaSolar venus(glm::vec3(0.7f, 0.7f, 0.7f), 0.3f, 0.3f, 0.3f, 2.5f, VAOEsfera);
+	ObjetoSistemaSolar tierra(glm::vec3(0.28f, 0.21f, 0.16f), 1.0f, 0.7f, 0.7f, 3.0f, VAOEsfera);
+	ObjetoSistemaSolar luna(glm::vec3(0.5f, 0.5f, 0.5f), 0.7f, 0.5f, 0.2f, 1.0f, VAOEsfera);
+	ObjetoSistemaSolar iss(glm::vec3(0.3f, 0.3f, 0.3f), 0.6f, 0.5f, 1.0f, 0.5f, VAOEsfera);
+	ObjetoSistemaSolar marte(glm::vec3(0.66f, 0.14f, 0.2f), 0.2f, 1.2f, 1.2f, 4.0f, VAOEsfera);
+	ObjetoSistemaSolar jupiter(glm::vec3(0.65f, 0.61f, 0.52f), 3.0f, 5.0f, 3.0f, 1.0f, VAOEsfera);
+	ObjetoSistemaSolar saturno(glm::vec3(0.2f, 0.23f, 0.27f), 2.0f, 0.2f, 0.2f, 1.0f, VAOEsfera);
+	ObjetoSistemaSolar urano(glm::vec3(0.3f, 0.81f, 0.93f), 1.5f, 0.5f, 1.3f, 10.0f, VAOEsfera);
+	ObjetoSistemaSolar neptuno(glm::vec3(0.24f, 0.33f, 0.91f), 1.8f, 3.0f, 2.6f, 11.0f, VAOEsfera);
 
 	glm::mat4 transformCentro = glm::mat4(); // Matriz identidad
-	transformCentro = glm::scale(transformCentro, glm::vec3(0.2f, 0.2f, 0.2f));
-	glm::mat4 transformPlanetas = glm::scale(transformCentro, glm::vec3(0.4f, 0.4f, 0.4f));
+	transformCentro = glm::scale(transformCentro, glm::vec3(0.3f, 0.3f, 0.3f));
+	glm::mat4 transformPlanetas = glm::scale(transformCentro, glm::vec3(0.7f, 0.7f, 0.7f));
 
 	sol.setMatBase(&transformCentro);
 	mercurio.setMatBase(&transformPlanetas);
@@ -253,22 +253,22 @@ int main()
 		unsigned int locColor = glGetUniformLocation(shaderProgram, "color");
 
 		sol.dibujar(locTransform, locColor);
-		//mercurio.dibujar(locTransform, locColor);
-		//venus.dibujar(locTransform, locColor);
+		mercurio.dibujar(locTransform, locColor);
+		venus.dibujar(locTransform, locColor);
 		tierra.dibujar(locTransform, locColor);
 
 		glm::mat4 matTransformacionTierra = tierra.getMatTransformacion();
 		luna.setMatBase(&matTransformacionTierra);
+		luna.dibujar(locTransform, locColor);
 		glm::mat4 matTransformacionLuna = luna.getMatTransformacion();
 		iss.setMatBase(&matTransformacionLuna);
-		luna.dibujar(locTransform, locColor);
 		iss.dibujar(locTransform, locColor);
 
-		//marte.dibujar(locTransform, locColor);
-		//jupiter.dibujar(locTransform, locColor);
-		//saturno.dibujar(locTransform, locColor);
-		//urano.dibujar(locTransform, locColor);
-		//neptuno.dibujar(locTransform, locColor);
+		marte.dibujar(locTransform, locColor);
+		jupiter.dibujar(locTransform, locColor);
+		saturno.dibujar(locTransform, locColor);
+		urano.dibujar(locTransform, locColor);
+		neptuno.dibujar(locTransform, locColor);
 
 		// glfw: swap 
 		// -------------------------------------------------------------------------------
