@@ -12,6 +12,12 @@
 // Defino la clase ObjetoSistemaSolar
 
 double currentTime;
+int dibujar_orbita = 1;
+
+unsigned int VAOEjes;
+unsigned int VAOEsfera;
+unsigned int VAOCuadrado;
+unsigned int VAOCirculo;
 
 void tiempo() {
 	currentTime = glfwGetTime();
@@ -62,7 +68,10 @@ public:
 	}
 
 	glm::mat4 getMatTransformacion() {
-		return getMatTransformacionWorld() * getMatTransformacionLocal();
+		glm::mat4 transform = glm::rotate(glm::mat4(), glm::half_pi<float>(), glm::vec3(1.0f, 0.0f, 0.0f));
+		transform = transform * getMatTransformacionWorld() * getMatTransformacionLocal();
+		
+		return transform;
 	}
 
 	glm::vec3 getPosicion() {
@@ -79,6 +88,24 @@ public:
 		glUniform3fv(locColor, 1, glm::value_ptr(color));
 		glDrawArrays(GL_TRIANGLES, 0, 1080);
 		glBindVertexArray(0);
+
+		if (dibujar_orbita) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glBindVertexArray(VAOCirculo);
+			glUniform3f(locColor, 1.0f, 1.0f, 1.0f);
+
+			glm::mat4 matCalculada = glm::mat4();
+			matCalculada = glm::scale(matCalculada, glm::vec3(distancia_centro, distancia_centro, distancia_centro));
+			matCalculada = glm::translate(glm::mat4(), punto_orbita) * matCalculada;
+			matCalculada = glm::rotate(glm::mat4(), glm::half_pi<float>(), glm::vec3(1.0f, 0.0f, 0.0f)) * matCalculada;
+			
+			
+			glUniformMatrix4fv(locTransform, 1, GL_FALSE, glm::value_ptr(matCalculada));
+
+
+			glDrawArrays(GL_LINE_LOOP, 0, 40);
+			glBindVertexArray(0);
+		}
 	}
 };
 
@@ -91,10 +118,6 @@ const unsigned int SCR_HEIGHT = 800;
 
 extern GLuint setShaders(const char* nVertx, const char* nFrag);
 GLuint shaderProgram;
-
-unsigned int VAOEjes;
-unsigned int VAOEsfera;
-unsigned int VAOCuadrado;
 
 ObjetoSistemaSolar sol, mercurio, venus, tierra, luna, iss_cuerpo_principal, iss_cuerpo_brazos, marte, jupiter, saturno, urano, neptuno;
 
@@ -169,6 +192,38 @@ void crearEsfera() {
 
 	// Vértices
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+	glEnableVertexAttribArray(0);
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+
+}
+
+void crearCirculo() {
+	unsigned int VBO, EBO;
+
+	glGenVertexArrays(1, &VAOCirculo);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+	// bind the Vertex Array Object first.
+	glBindVertexArray(VAOCirculo);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(*vertices_esfera) * 8 * (3 * 18 * 2 + 3 * 4) , vertices_esfera + 8 * (3 * 18 * 8 - 3 * 4 + 1), GL_STATIC_DRAW);
+
+	// Normales
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * 8 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+
+	// Textura
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 3* 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+
+	// Vértices
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * 8 * sizeof(float), (void*)(5 * sizeof(float)));
 	glEnableVertexAttribArray(0);
 
 
@@ -294,6 +349,15 @@ void display() {
 	neptuno.dibujar(locTransform, locColor);
 }
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_F1 && action == GLFW_PRESS) {
+		dibujar_orbita = !dibujar_orbita;
+	}
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
 int main()
 {
 	// glfw: initialize and configure
@@ -316,6 +380,8 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 
+	glfwSetKeyCallback(window, key_callback);
+
 	// glad: load all OpenGL function pointers
 	// ---------------------------------------
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -332,16 +398,17 @@ int main()
 	crearEjes();
 	crearEsfera();
 	crearCuadrado();
+	crearCirculo();
 
 	// ObjetoSistemaSolar(glm::vec3 color, float escala, float velocidad_rotacion, float velocidad_rotacion_orbita, float distancia_centro, unsigned int VAO)
-	sol = ObjetoSistemaSolar(glm::vec3(1.0f, 1.0f, 1.0f), 0.2f, 0.5f, 0.0f, 0.0f, VAOEsfera);
+	sol = ObjetoSistemaSolar(glm::vec3(1.0f, 1.0f, 1.0f), 0.25f, 0.5f, 0.0f, 0.0f, VAOEsfera);
 	mercurio = ObjetoSistemaSolar(glm::vec3(0.48f, 0.49f, 0.5f), 0.03f, 0.5f, 2.0f, 0.1f, VAOEsfera);
 	venus = ObjetoSistemaSolar(glm::vec3(0.7f, 0.7f, 0.7f), 0.03f, 0.05f, 0.3f, 0.15f, VAOEsfera);
-	tierra = ObjetoSistemaSolar(glm::vec3(0.28f, 0.21f, 0.16f), 0.1f, 0.7f, 0.1f, 0.3f, VAOEsfera);
-	luna = ObjetoSistemaSolar(glm::vec3(0.5f, 0.5f, 0.5f), 0.05f, 0.5f, 0.2f, 0.1f, VAOEsfera);
+	tierra = ObjetoSistemaSolar(glm::vec3(0.28f, 0.21f, 0.16f), 0.1f, 0.7f, 0.75f, 0.3f, VAOEsfera);
+	luna = ObjetoSistemaSolar(glm::vec3(0.5f, 0.5f, 0.5f), 0.05f, 0.5f, 1.8f, 0.1f, VAOEsfera);
 	iss_cuerpo_principal = ObjetoSistemaSolar(glm::vec3(0.3f, 0.3f, 0.3f), 0.05f, 0.5f, 1.0f, 0.05f, VAOCuadrado);
 	iss_cuerpo_brazos = ObjetoSistemaSolar(glm::vec3(0.3f, 0.3f, 0.3f), 0.05f, 0.5f, 0.0f, 0.0f, VAOCuadrado);
-	marte = ObjetoSistemaSolar(glm::vec3(0.66f, 0.14f, 0.2f), 0.08f, 1.2f, 1.2f, 4.0f, VAOEsfera);
+	marte = ObjetoSistemaSolar(glm::vec3(0.66f, 0.14f, 0.2f), 0.08f, 1.2f, 1.2f, 0.5f, VAOEsfera);
 	jupiter = ObjetoSistemaSolar(glm::vec3(0.65f, 0.61f, 0.52f), 0.15f, 5.0f, 3.0f, 0.6f, VAOEsfera);
 	saturno = ObjetoSistemaSolar(glm::vec3(0.2f, 0.23f, 0.27f), 0.2f, 0.2f, 0.2f, 0.73f, VAOEsfera);
 	urano = ObjetoSistemaSolar(glm::vec3(0.3f, 0.81f, 0.93f), 0.15f, 0.5f, 1.3f, 0.85f, VAOEsfera);
@@ -354,10 +421,6 @@ int main()
 	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
-		// input
-		// -----
-		processInput(window);
-
 		// render
 		// ------
 		display();
@@ -374,10 +437,4 @@ int main()
 
 	glfwTerminate();
 	return 0;
-}
-
-void processInput(GLFWwindow* window)
-{
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
 }
