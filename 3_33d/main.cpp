@@ -44,6 +44,7 @@ public:
 
 	unsigned int VAO;
 	unsigned int EBO_number_to_draw;
+	int useEBO = 1;
 	
 	Objeto() {};
 
@@ -57,6 +58,10 @@ public:
 		this->viewMatrix = matCamara;
 		rotacion_local = glm::mat4();
 	};
+
+	void toggleUseEBO() {
+		useEBO = !useEBO;
+	}
 
 	glm::mat4 getMatTransformacionLocal() {
 		glm::mat4 transform = glm::mat4();
@@ -109,7 +114,12 @@ public:
 		glm::mat4 matCalculada = *viewMatrix * matWorld * matLocal;
 		glUniformMatrix4fv(locTransform, 1, GL_FALSE, glm::value_ptr(matCalculada));
 		glUniform3fv(locColor, 1, glm::value_ptr(color));
-		glDrawElements(GL_TRIANGLES, EBO_number_to_draw, GL_UNSIGNED_INT, NULL);
+		if (useEBO) {
+			glDrawElements(GL_TRIANGLES, EBO_number_to_draw, GL_UNSIGNED_INT, NULL);
+		}
+		else {
+			glDrawArrays(GL_TRIANGLES, 0, EBO_number_to_draw);
+		}
 
 		glBindVertexArray(0);
 	}
@@ -205,8 +215,8 @@ void crearEsfera() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 	glEnableVertexAttribArray(0);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -308,7 +318,7 @@ void openGlInit() {
 	glClearDepth(1.0f); //Valor z-buffer
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // valor limpieza buffer color
 	glEnable(GL_DEPTH_TEST); // z-buffer
-	glDisable(GL_CULL_FACE); //ocultacion caras back
+	glEnable(GL_CULL_FACE); //ocultacion caras back
 	glCullFace(GL_BACK);
 }
 
@@ -335,76 +345,6 @@ void display() {
 
 	base_grua.dibujar(locTransform, locColor, GL_FILL);
 
-	/*
-	
-	//BASE
-		transform = glm::mat4();
-		transform = glm::rotate(transform, (float)(angulo * ARADIANES), glm::vec3(1.0f, 0.0f, 0.0f));
-		transform = glm::translate(transform, glm::vec3(base.px,base.py,base.pz));
-		transformtemp = transform;
-		transform = glm::scale(transform, glm::vec3((base.sx), (base.sy), (base.sz)));
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
-		glUniform3f(ubicacionColor, 1.0f, 1.0f, 0.0f);
-		glBindVertexArray(VAOCubo);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(VAO);
-		glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, 0);
-
-
-
-		//Primera articulacion
-		transform = glm::mat4();
-		transform = transformtemp;
-		transform = glm::translate(transform, glm::vec3(base.px, base.py, base.pz));
-		transform = glm::rotate(transform, (float)(baseAI.angulo_trans*ARADIANES), glm::vec3(1.0f, 0.0f, 0.0f));
-		transform = glm::rotate(transform, (float)(baseAI.angulo_trans_2 * ARADIANES), glm::vec3(0.0f, 1.0f, 0.0f));
-		transformtemp = transform;
-		transform = glm::scale(transform, glm::vec3((baseAI.sx), (baseAI.sy), (baseAI.sz)));
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
-		glUniform3f(ubicacionColor, 0.0f, 0.74f, 1.0f);
-		glBindVertexArray(VAOEsfera);
-		glDrawArrays(GL_TRIANGLES, 0, 1080);
-
-
-		//Primer brazo
-		transform = glm::mat4();
-		transform = transformtemp;
-		transform = glm::translate(transform, glm::vec3(0,0,0.1));
-		transformtemp = transform;
-		transform = glm::scale(transform, glm::vec3(.05,.05,.3));
-
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
-		glUniform3f(ubicacionColor, 0.6f, 0.2f, 0.8f);
-		glBindVertexArray(VAOCubo);
-		glDrawArrays(GL_TRIANGLES,0,36);
-
-		//Segunda articulacion
-		transform = glm::mat4();
-		transform = transformtemp;
-		transform = glm::translate(transform, glm::vec3(0,0,0.15));
-		transform = glm::rotate(transform, (float)(baseA2.angulo_trans * ARADIANES), glm::vec3(1.0f, 0.0f, 0.0f));
-		transform = glm::rotate(transform, (float)(baseA2.angulo_trans_2 * ARADIANES), glm::vec3(0.0f, 1.0f, 0.0f));
-		transformtemp = transform;
-		transform = glm::scale(transform, glm::vec3(.05,.05,.05));
-		
-		glBindVertexArray(VAOEsfera);
-		glDrawArrays(GL_TRIANGLES, 0, 1080);
-
-		//Segundo brazo
-		transform = glm::mat4();
-		transform = transformtemp;
-		transform = glm::translate(transform, glm::vec3(0,0,0.11));
-		transformtemp = transform;
-		transform = glm::scale(transform, glm::vec3(.05,.05,.3));
-
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
-		glUniform3f(ubicacionColor, 0.6f, 0.2f, 0.8f);
-		glBindVertexArray(VAOCubo);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-	*/
-
-	// Primera articulación
 	glm::mat4 transform = glm::mat4();
 	transform = glm::translate(transform, brazo_1.getPosicion());
 	transform = glm::rotate(transform, glm::radians(angulo_brazo1_1), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -428,11 +368,14 @@ void display() {
 	transform = transform * brazo_2.getMatTransformacionLocal();
 	brazo_2.dibujar(locTransform, locColor, GL_FILL, transform);
 
-
-	glm::mat4 matCalculada = glm::mat4();
+	/*glBindVertexArray(VAOEsfera);
+	glm::mat4 matCalculada = glm::rotate(matCalculada, (float) 1.14, glm::vec3(1.0f, 0, 0));
+	matCalculada = glm::scale(glm::mat4(), glm::vec3(0.2f, 0.2f, 0.2f));
 	glm::vec3 color = glm::vec3(0.5f, 0.5f, 0.0f);
 	glUniformMatrix4fv(locTransform, 1, GL_FALSE, glm::value_ptr(matCalculada));
 	glUniform3fv(locColor, 1, glm::value_ptr(color));
+	glDrawArrays(GL_TRIANGLES, 0, 1080);
+	glBindVertexArray(0);*/
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -494,10 +437,11 @@ int main()
 	esfera_base = Objeto(glm::vec3(0.5f, 0.0f, 0.5f), VAOEsfera, 1080, &viewMatrix);
 	esfera_base.setDistorsion(glm::vec3(0.05f, 0.05f, 0.05f));
 	esfera_base.setPosicion(glm::vec3(0.0f, 0.2f, 0.0f));
+	esfera_base.toggleUseEBO();
 	
 	esfera_brazo = Objeto(glm::vec3(0.5f, 0.0f, 0.5f), VAOEsfera, 1080, &viewMatrix);
 	esfera_brazo.setDistorsion(glm::vec3(0.05f, 0.05f, 0.05f));
-	esfera_brazo.setPosicion(glm::vec3(0.0f, 0.0f, 0.0f));
+	esfera_brazo.toggleUseEBO();
 
 	brazo_2 = Objeto(glm::vec3(0.0f, 1.0f, 0.5f), VAOCubo, 36, &viewMatrix);
 	brazo_2.setPosicionLocal(glm::vec3(0.0f, 0.5f, 0.0f));
@@ -529,11 +473,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
 	std::cout << key << std::endl;
 	//A
-	if (key == 65) {
+	if (key == 65 && angulo_brazo1_1 < 80) {
 		angulo_brazo1_1++;
 	}
 	//S
-	if (key == 83) {
+	if (key == 83 && angulo_brazo1_1 > -80) {
 		angulo_brazo1_1--;
 	}
 	//W
@@ -545,11 +489,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		angulo_brazo1_2--;
 	}
 	//T
-	if (key == 84) {
+	if (key == 84 && angulo_brazo2_1 < 120) {
 		angulo_brazo2_1++;
 	}
 	//G
-	if (key == 71) {
+	if (key == 71 && angulo_brazo2_1 > -120) {
 		angulo_brazo2_1--;
 	}
 	//F
