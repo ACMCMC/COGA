@@ -41,10 +41,10 @@ public:
 	glm::vec3 posicion_local;
 	glm::mat4 rotacion_local;
 	glm::mat4* viewMatrix;
+	GLenum tipoPrimitivas = GL_TRIANGLES;
 
 	unsigned int VAO;
 	unsigned int EBO_number_to_draw;
-	int useEBO = 1;
 	
 	Objeto() {};
 
@@ -58,10 +58,6 @@ public:
 		this->viewMatrix = matCamara;
 		rotacion_local = glm::mat4();
 	};
-
-	void toggleUseEBO() {
-		useEBO = !useEBO;
-	}
 
 	glm::mat4 getMatTransformacionLocal() {
 		glm::mat4 transform = glm::mat4();
@@ -85,6 +81,10 @@ public:
 	
 	void setPosicion(glm::vec3 pos) {
 		posicion_mundo = pos;
+	}
+
+	void setTipoPrimitivas(GLenum t) {
+		tipoPrimitivas = t;
 	}
 
 	void setPosicionLocal(glm::vec3 pos) {
@@ -114,12 +114,8 @@ public:
 		glm::mat4 matCalculada = *viewMatrix * matWorld * matLocal;
 		glUniformMatrix4fv(locTransform, 1, GL_FALSE, glm::value_ptr(matCalculada));
 		glUniform3fv(locColor, 1, glm::value_ptr(color));
-		if (useEBO) {
-			glDrawElements(GL_TRIANGLES, EBO_number_to_draw, GL_UNSIGNED_INT, NULL);
-		}
-		else {
-			glDrawArrays(GL_TRIANGLES, 0, EBO_number_to_draw);
-		}
+		
+		glDrawElements(tipoPrimitivas, EBO_number_to_draw, GL_UNSIGNED_INT, NULL);
 
 		glBindVertexArray(0);
 	}
@@ -215,8 +211,8 @@ void crearEsfera() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 	glEnableVertexAttribArray(0);
 
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -318,7 +314,7 @@ void openGlInit() {
 	glClearDepth(1.0f); //Valor z-buffer
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // valor limpieza buffer color
 	glEnable(GL_DEPTH_TEST); // z-buffer
-	glDisable(GL_CULL_FACE); //ocultacion caras back
+	glEnable(GL_CULL_FACE); //ocultacion caras back
 	glCullFace(GL_BACK);
 }
 
@@ -367,15 +363,6 @@ void display() {
 	transform_temp = transform;
 	transform = transform * brazo_2.getMatTransformacionLocal();
 	brazo_2.dibujar(locTransform, locColor, GL_FILL, transform);
-
-	/*glBindVertexArray(VAOEsfera);
-	glm::mat4 matCalculada = glm::rotate(matCalculada, (float) 1.14, glm::vec3(1.0f, 0, 0));
-	matCalculada = glm::scale(glm::mat4(), glm::vec3(0.2f, 0.2f, 0.2f));
-	glm::vec3 color = glm::vec3(0.5f, 0.5f, 0.0f);
-	glUniformMatrix4fv(locTransform, 1, GL_FALSE, glm::value_ptr(matCalculada));
-	glUniform3fv(locColor, 1, glm::value_ptr(color));
-	glDrawArrays(GL_TRIANGLES, 0, 1080);
-	glBindVertexArray(0);*/
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -437,11 +424,11 @@ int main()
 	esfera_base = Objeto(glm::vec3(0.5f, 0.0f, 0.5f), VAOEsfera, 1080, &viewMatrix);
 	esfera_base.setDistorsion(glm::vec3(0.05f, 0.05f, 0.05f));
 	esfera_base.setPosicion(glm::vec3(0.0f, 0.2f, 0.0f));
-	esfera_base.toggleUseEBO();
+	esfera_base.setTipoPrimitivas(GL_TRIANGLE_STRIP);
 	
 	esfera_brazo = Objeto(glm::vec3(0.5f, 0.0f, 0.5f), VAOEsfera, 1080, &viewMatrix);
 	esfera_brazo.setDistorsion(glm::vec3(0.05f, 0.05f, 0.05f));
-	esfera_brazo.toggleUseEBO();
+	esfera_brazo.setTipoPrimitivas(GL_TRIANGLE_STRIP);
 
 	brazo_2 = Objeto(glm::vec3(0.0f, 1.0f, 0.5f), VAOCubo, 36, &viewMatrix);
 	brazo_2.setPosicionLocal(glm::vec3(0.0f, 0.5f, 0.0f));
