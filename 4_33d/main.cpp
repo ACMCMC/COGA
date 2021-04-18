@@ -12,7 +12,8 @@
 
 double currentTime;
 
-float angulo_brazo1_1, angulo_brazo1_2, angulo_brazo2_1, angulo_brazo2_2, angulo_camara_1, radioCamara = 50.0f, fov = 60.0f, x, z;
+float angulo_brazo1_1, angulo_brazo1_2, angulo_brazo2_1, angulo_brazo2_2, angulo_camara_1 = 60.0f, radioCamara = 100.0f, fov = 60.0f, velocidad, direccion, x, z;
+const float ratio_movimiento = 0.01f;
 
 unsigned int VAOEjes, VAOEsfera, VAOCubo, VAOCuadrado;
 
@@ -48,6 +49,7 @@ public:
 	glm::mat4 rotacion_local;
 	glm::mat4 matWorld;
 	GLenum tipoPrimitivas = GL_TRIANGLES;
+	GLenum modoPoligonos = GL_FILL;
 	unsigned int VAO;
 	unsigned int EBO_number_to_draw;
 	
@@ -95,7 +97,7 @@ public:
 	}
 
 	void dibujar(glm::mat4 view, glm::mat4 projection) {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glPolygonMode(GL_FRONT_AND_BACK, modoPoligonos);
 		glBindVertexArray(VAO);
 
 		unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model");
@@ -113,7 +115,7 @@ public:
 	}
 };
 
-Objeto cuadrado_suelo, base_grua, esfera_base, esfera_brazo, brazo_1, brazo_2;
+Objeto ejes, cuadrado_suelo, base_grua, esfera_base, esfera_brazo, brazo_1, brazo_2;
 
 void crearEjes() {
 	unsigned int VBO, EBO;
@@ -122,10 +124,10 @@ void crearEjes() {
 	float vertices[] = {
 		//Vertices           //Colores
 		0.0f, 0.0f, 0.0f,	 1.0f, 1.0f, 1.0f, // 0
-		.5f, 0.0f, 0.0f,	 1.0f, 0.0f, 0.0f, //x
-		0.0f, .5f, 0.0f,	 0.0f, 1.0f, 0.0f, // y
-		0.0f, .5f, 0.0f,	 0.0f, 0.0f, 1.0f, // z  
-		.5f , .5f, 0.5f,	 1.0f, 1.0f, 1.0f  // 1,1,1 bueno realmente la mitad
+		1.0f, 0.0f, 0.0f,	 1.0f, 0.0f, 0.0f, //x
+		0.0f, 1.0f, 0.0f,	 0.0f, 1.0f, 0.0f, // y
+		0.0f, 0.0f, 1.0f,	 0.0f, 0.0f, 1.0f, // z  
+		1.0f, 1.0f, 1.0f,	 1.0f, 1.0f, 1.0f  // 1,1,1 bueno realmente la mitad
 	};
 	unsigned int indices[] = {  // empieza desde cero
 		0, 1,
@@ -146,22 +148,16 @@ void crearEjes() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	// color attribute
-
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-
-
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
-
 }
 
 void crearEsfera() {
@@ -289,11 +285,16 @@ void crearCuadrado() {
 	glDeleteBuffers(1, &EBO);
 }
 
+void movimiento() {
+	x += ratio_movimiento * velocidad * sin(glm::radians(direccion));
+	z += ratio_movimiento * velocidad * cos(glm::radians(direccion));
+}
+
 void openGlInit() {
 	glClearDepth(1.0f); //Valor z-buffer
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //Borro el Buffer the la ventana
 	glEnable(GL_DEPTH_TEST); // z-buffer
-	glEnable(GL_CULL_FACE); //ocultacion caras back
+	glDisable(GL_CULL_FACE); //ocultacion caras back
 	glCullFace(GL_BACK);
 }
 
@@ -309,10 +310,14 @@ void draw(glm::mat4 view, glm::mat4 projection) {
 		}
 	}
 
-	base_grua.setMatWorld(glm::translate(glm::mat4(), glm::vec3(x, 0.0f, z)));
+	glm::mat4 matWorld = glm::translate(glm::mat4(), glm::vec3(x, 0.0f, z));
+	matWorld = glm::rotate(matWorld, glm::radians(direccion), glm::vec3(0.0f, 1.0f, 0.0f));
+	base_grua.setMatWorld(matWorld);
 	base_grua.dibujar(view, projection);
 	esfera_base.setMatWorld(base_grua.getMatTransformacionWorld());
 	esfera_base.dibujar(view, projection);
+	ejes.setMatWorld(base_grua.getMatTransformacionWorld());
+	ejes.dibujar(view, projection);
 
 	glm::mat4 transform = glm::mat4();
 	transform = glm::translate(transform, glm::vec3(0.0, 20.0, 0.0));
@@ -332,30 +337,16 @@ void draw(glm::mat4 view, glm::mat4 projection) {
 	transform = brazo_1.getMatTransformacionWorld() * transform;
 	brazo_2.setMatWorld(transform);
 	brazo_2.dibujar(view, projection);
-
-	transform = glm::translate(transform, glm::vec3(0.0f, 0.3f, 0.0f));
-	//transform_temp = transform;
-	transform = transform * esfera_brazo.getMatTransformacionLocal();
-	//esfera_brazo.dibujar(view, projection);
-
-	//transform = transform_temp;
-	//transform = glm::translate(transform, brazo_2.getPosicion());
-	transform = glm::rotate(transform, glm::radians(angulo_brazo2_1), glm::vec3(1.0f, 0.0f, 0.0f));
-	transform = glm::rotate(transform, glm::radians(angulo_brazo2_2), glm::vec3(0.0f, 1.0f, 0.0f));
-	//transform_temp = transform;
-	transform = transform * brazo_2.getMatTransformacionLocal();
-	//brazo_2.setMatWorld();
-	//brazo_2.dibujar(view, projection);
 }
 
 void terceraPersona() {
-	glm::mat4 view = glm::lookAt(glm::vec3(0.0f, radioCamara * sin(glm::radians(angulo_camara_1)), radioCamara * cos(glm::radians(angulo_camara_1))), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
+	glm::mat4 view = glm::lookAt(glm::vec3(x + 100.0f * sin(glm::radians(direccion)), 150.0f, z + 100.0f * cos(glm::radians(direccion))), glm::vec3(x, 20.0f, z), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 projection = glm::perspective(glm::radians(60.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 	draw(view, projection);
 }
 
 void primeraPersona() {
-	glm::mat4 view = glm::lookAt(glm::vec3(x, 0.5f, z + 0.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 view = glm::lookAt(glm::vec3(x + 8.0f * sin(glm::radians(direccion)), 23.0f, z + 8.0f* cos(glm::radians(direccion))), glm::vec3(x + 30.0f * sin(glm::radians(direccion)), 23.0f, z + 30.0f * cos(glm::radians(direccion))), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 projection = glm::perspective(glm::radians(60.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 	draw(view, projection);
 }
@@ -397,10 +388,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-
-
-	//Creo la ventana
-
+	// Creo la ventana
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "AldanCreo", NULL, NULL);
 	if (window == NULL)
 	{
@@ -413,8 +401,6 @@ int main()
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetWindowSizeCallback(window, window_size_callback);
 
-	// glad: load all OpenGL function pointers
-	// ---------------------------------------
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -422,8 +408,6 @@ int main()
 	}
 
 	openGlInit();
-
-	//generarShader();
 	shaderProgram = setShaders("shader.vert", "shader.frag");
 
 	crearEjes();
@@ -431,8 +415,13 @@ int main()
 	crearCubo();
 	crearCuadrado();
 
+	ejes = Objeto(glm::vec3(1.0f, 1.0f, 1.0f), VAOEjes, 10);
+	ejes.modoPoligonos = GL_LINE;
+	ejes.tipoPrimitivas = GL_LINES;
+
 	cuadrado_suelo = Objeto(glm::vec3(0.0f, 0.0f, 1.0f), VAOCuadrado, 6);
 	cuadrado_suelo.setRotacionLocal(glm::rotate(glm::mat4(), -glm::half_pi<float>(), glm::vec3(1.0f, 0.0f, 0.0f)));
+	cuadrado_suelo.modoPoligonos = GL_LINE;
 
 	base_grua = Objeto(glm::vec3(0.5f, 1.0f, 0.0f), VAOCubo, 36);
 	base_grua.setPosicionLocal(glm::vec3(0.0f, 0.1f, 0.0f));
@@ -460,6 +449,7 @@ int main()
 	{
 		display();
 		tiempo();
+		movimiento();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -548,19 +538,19 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 	//ARRIBA
 	if (key == GLFW_KEY_UP) {
-		z++;
+		velocidad++;
 	}
 	//ABAJO
 	if (key == GLFW_KEY_DOWN) {
-		z--;
+		velocidad--;
 	}
 	//IZQUIERDA
 	if (key == GLFW_KEY_LEFT) {
-		x--;
+		direccion++;
 	}
 	//DERECHA
 	if (key == GLFW_KEY_RIGHT) {
-		x++;
+		direccion--;
 	}
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
