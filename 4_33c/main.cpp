@@ -164,7 +164,7 @@ void crearEjes() {
 		0.0f, 0.0f, 0.0f,	 1.0f, 1.0f, 1.0f, // 0
 		.5f, 0.0f, 0.0f,	 1.0f, 0.0f, 0.0f, //x
 		0.0f, .5f, 0.0f,	 0.0f, 1.0f, 0.0f, // y
-		0.0f, .5f, 0.0f,	 0.0f, 0.0f, 1.0f, // z  
+		0.0f, 0.0f, .5f,	 0.0f, 0.0f, 1.0f, // z  
 		.5f , .5f, 0.5f,	 1.0f, 1.0f, 1.0f  // 1,1,1 bueno realmente la mitad
 	};
 	unsigned int indices[] = {  // empieza desde cero
