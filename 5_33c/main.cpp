@@ -211,29 +211,47 @@ void crearCubo() {
 	unsigned int VBO, EBO;
 
 	float vertices[] = {
-	-0.5f, -0.5f,  0.5f, // 0
-	-0.5f, -0.5f, -0.5f, // 1
-	-0.5f,  0.5f,  0.5f, // 2
-	-0.5f,  0.5f, -0.5f, // 3
-	 0.5f, -0.5f,  0.5f, // 4
-	 0.5f, -0.5f, -0.5f, // 5
-	 0.5f,  0.5f,  0.5f, // 6
-	 0.5f,  0.5f, -0.5f, // 7
+	-0.5f, -0.5f, +0.5f, +0.0f, +0.0f, +1.0f, // 0  vertice inferior izquierdo de la cara frontal, normal hacia +z
+	-0.5f, -0.5f, -0.5f, +0.0f, +0.0f, -1.0f, // 1  vertice inferior derecho de la cara trasera, normal hacia -z
+	-0.5f, +0.5f, +0.5f, +0.0f, +0.0f, +1.0f, // 2  vertice superior izquierdo de la cara frontal, normal hacia +z
+	-0.5f, +0.5f, -0.5f, +0.0f, +0.0f, -1.0f, // 3  vertice superior derecho de la cara trasera, normal hacia -z
+	+0.5f, -0.5f, +0.5f, +0.0f, +0.0f, +1.0f, // 4  vertice inferior derecho de la cara frontal, normal hacia +z
+	+0.5f, -0.5f, -0.5f, +0.0f, +0.0f, -1.0f, // 5  vertice inferior izquierdo de la cara trasera, normal hacia -z
+	+0.5f, +0.5f, +0.5f, +0.0f, +0.0f, +1.0f, // 6  vertice superior derecho de la cara frontal, normal hacia +z
+	+0.5f, +0.5f, -0.5f, +0.0f, +0.0f, -1.0f, // 7  vertice superior izquierdo de la cara trasera, normal hacia -z
+
+	-0.5f, -0.5f, +0.5f, -1.0f, +0.0f, +0.0f, // 8  vertice inferior derecho de la cara izquierda, normal hacia -x
+	-0.5f, -0.5f, -0.5f, -1.0f, +0.0f, +0.0f, // 9  vertice inferior izquierdo de la cara izquierda, normal hacia -x
+	-0.5f, +0.5f, +0.5f, -1.0f, +0.0f, +0.0f, // 10 vertice superior derecho de la cara izquierda, normal hacia -x
+	-0.5f, +0.5f, -0.5f, -1.0f, +0.0f, +0.0f, // 11 vertice superior izquierdo de la cara izquierda, normal hacia -x
+	+0.5f, -0.5f, +0.5f, +1.0f, +0.0f, +0.0f, // 12 vertice inferior izquierdo de la cara derecha, normal hacia +x
+	+0.5f, -0.5f, -0.5f, +1.0f, +0.0f, +0.0f, // 13 vertice inferior derecho de la cara derecha, normal hacia +x
+	+0.5f, +0.5f, +0.5f, +1.0f, +0.0f, +0.0f, // 14 vertice superior izquierdo de la cara derecha, normal hacia +x
+	+0.5f, +0.5f, -0.5f, +1.0f, +0.0f, +0.0f, // 15 vertice superior derecho de la cara derecha, normal hacia +x
+
+	-0.5f, -0.5f, +0.5f, +0.0f, -1.0f, +0.0f, // 16 vertice superior izquierdo de la cara inferior, normal hacia -y
+	-0.5f, -0.5f, -0.5f, +0.0f, -1.0f, +0.0f, // 17 vertice inferior izquierdo de la cara inferior, normal hacia -y
+	-0.5f, +0.5f, +0.5f, +0.0f, +1.0f, +0.0f, // 18 vertice inferior izquierdo de la cara superior, normal hacia +y
+	-0.5f, +0.5f, -0.5f, +0.0f, +1.0f, +0.0f, // 19 vertice superior izquierdo de la cara superior, normal hacia +y
+	+0.5f, -0.5f, +0.5f, +0.0f, -1.0f, +0.0f, // 20 vertice superior derecho de la cara inferior, normal hacia -y
+	+0.5f, -0.5f, -0.5f, +0.0f, -1.0f, +0.0f, // 21 vertice inferior derecho de la cara inferior, normal hacia -y
+	+0.5f, +0.5f, +0.5f, +0.0f, +1.0f, +0.0f, // 22 vertice inferior derecho de la cara superior, normal hacia +y
+	+0.5f, +0.5f, -0.5f, +0.0f, +1.0f, +0.0f  // 23 vertice superior derecho de la cara superior, normal hacia +y
 	};
 
 	unsigned int indices[] = {
-		1,5,7,
-		1,7,3,
-		0,2,6,
-		0,6,4,
-		5,4,6,
-		5,6,7,
-		1,3,2,
-		1,2,0,
-		3,7,6,
-		3,6,2,
-		0,4,5,
-		0,5,1
+		1,7,5, // cara trasera
+		1,3,7, // cara trasera
+		0,6,2, // cara delantera
+		0,4,6, // cara delantera
+		13,14,12, // cara derecha
+		13,15,14, // cara derecha
+		9,10,11, // cara izquierda
+		9,8,10, // cara izquierda
+		19,22,23, // cara superior
+		19,18,22, // cara superior
+		16,21,20, // cara inferior
+		16,17,21  // cara inferior
 	};
 
 	glGenVertexArrays(1, &VAOCubo);
@@ -247,8 +265,11 @@ void crearCubo() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -467,9 +488,9 @@ int main()
 	mercurio = ObjetoSistemaSolar(glm::vec3(0.48f, 0.49f, 0.05f), 3.0f, 0.5f, 2.0f, 10.0f, VAOEsfera, 1080);
 	venus = ObjetoSistemaSolar(glm::vec3(0.7f, 0.7f, 0.7f), 3.0f, 0.05f, 0.3f, 15.0f, VAOEsfera, 1080);
 	tierra = ObjetoSistemaSolar(glm::vec3(0.28f, 0.21f, 0.16f), 10.0f, 0.7f, 0.75f, 30.0f, VAOEsfera, 1080);
-	luna = ObjetoSistemaSolar(glm::vec3(0.5f, 0.5f, 0.5f), 5.0f, 0.5f, 1.8f, 10.0f, VAOEsfera, 1080);
-	iss_cuerpo_principal = ObjetoSistemaSolar(glm::vec3(0.3f, 0.3f, 0.3f), 5.0f, 0.5f, 1.0f, 5.0f, VAOCubo, 36);
-	iss_cuerpo_brazos = ObjetoSistemaSolar(glm::vec3(0.3f, 0.3f, 0.3f), 5.0f, 0.5f, 0.0f, 0.0f, VAOCubo, 36);
+	luna = ObjetoSistemaSolar(glm::vec3(0.5f, 0.5f, 0.5f), 5.0f, 0.5f, 0.4f, 10.0f, VAOEsfera, 1080);
+	iss_cuerpo_principal = ObjetoSistemaSolar(glm::vec3(0.3f, 0.3f, 0.3f), 5.0f, 0.3f, 0.3f, 5.0f, VAOCubo, 36);
+	iss_cuerpo_brazos = ObjetoSistemaSolar(glm::vec3(0.3f, 0.3f, 0.3f), 5.0f, 0.3f, 0.0f, 0.0f, VAOCubo, 36);
 	marte = ObjetoSistemaSolar(glm::vec3(0.66f, 0.14f, 0.2f), 8.0f, 1.2f, 1.2f, 50.0f, VAOEsfera, 1080);
 	jupiter = ObjetoSistemaSolar(glm::vec3(0.65f, 0.61f, 0.52f), 15.0f, 5.0f, 3.0f, 60.0f, VAOEsfera, 1080);
 	saturno = ObjetoSistemaSolar(glm::vec3(0.2f, 0.23f, 0.27f), 20.0f, 0.2f, 0.2f, 73.0f, VAOEsfera, 1080);
