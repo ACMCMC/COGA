@@ -503,7 +503,7 @@ int main()
 	crearCirculo();
 
 	// ObjetoSistemaSolar(glm::vec3 color, float escala, float velocidad_rotacion, float velocidad_rotacion_orbita, float distancia_centro, unsigned int VAO, unsigned int EBO_number_to_draw)
-	sol = ObjetoSistemaSolar(glm::vec3(1.0f, 1.0f, 1.0f), 25.0f, 0.5f, 0.0f, 0.0f, VAOEsfera, 1080);
+	sol = ObjetoSistemaSolar(glm::vec3(1.0f, 0.95f, 0.0f), 25.0f, 0.5f, 0.0f, 0.0f, VAOEsfera, 1080);
 	sol.setStrengths(1.0, 0.0, 0.0);
 	mercurio = ObjetoSistemaSolar(glm::vec3(0.48f, 0.49f, 0.05f), 3.0f, 0.5f, 2.0f, 10.0f, VAOEsfera, 1080);
 	venus = ObjetoSistemaSolar(glm::vec3(0.7f, 0.7f, 0.7f), 3.0f, 0.05f, 0.3f, 15.0f, VAOEsfera, 1080);
