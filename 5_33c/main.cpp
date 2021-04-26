@@ -40,6 +40,7 @@ public:
 	float escala;
 	glm::vec3 punto_orbita;
 	glm::vec3 distorsion;
+	float ambientI, diffuseI, specularI;
 
 	ObjetoSistemaSolar() {};
 
@@ -53,6 +54,15 @@ public:
 		this->EBO_number_to_draw = EBO_number_to_draw;
 		distorsion = glm::vec3(1.0f, 1.0f, 1.0f);
 		punto_orbita = glm::vec3(0.0f, 0.0f, 0.0f);
+		ambientI = 0.5;
+		diffuseI = 1.0;
+		specularI = 1.0;
+	}
+
+	void setStrengths(float ambientI, float diffuseI, float specularI) {
+		this->ambientI = ambientI;
+		this->diffuseI = diffuseI;
+		this->specularI = specularI;
 	}
 
 	void setPuntoOrbita(glm::vec3 punto_orbita) {
@@ -95,6 +105,9 @@ public:
 		unsigned int lightColorLoc = glGetUniformLocation(shaderProgram, "lightColor");
 		unsigned int lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
 		unsigned int viewPosLoc = glGetUniformLocation(shaderProgram, "viewPos");
+		unsigned int ambientILoc = glGetUniformLocation(shaderProgram, "ambientI");
+		unsigned int diffuseILoc = glGetUniformLocation(shaderProgram, "diffuseI");
+		unsigned int specularILoc = glGetUniformLocation(shaderProgram, "specularI");
 
 		glm::mat4 view = glm::lookAt(from, to, glm::vec3(0.0f, 1.0f, 0.0f));
 		glm::mat4 matCalculada = getMatTransformacion();
@@ -105,6 +118,9 @@ public:
 		glUniform3fv(lightColorLoc, 1, glm::value_ptr(lightColor));
 		glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
 		glUniform3fv(viewPosLoc, 1, glm::value_ptr(from));
+		glUniform1f(ambientILoc, ambientI);
+		glUniform1f(diffuseILoc, diffuseI);
+		glUniform1f(specularILoc, specularI);
 		glDrawElements(tipoPrimitivas, EBO_number_to_draw, GL_UNSIGNED_INT, NULL);
 		glBindVertexArray(0);
 
@@ -119,6 +135,9 @@ public:
 			matCalculada = glm::scale(matCalculada, glm::vec3(distancia_centro, distancia_centro, distancia_centro));
 
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(matCalculada));
+			glUniform1f(ambientILoc, 1.0f);
+			glUniform1f(diffuseILoc, 0.0f);
+			glUniform1f(specularILoc, 0.0f);
 
 			glDrawElements(GL_LINE_LOOP, 40, GL_UNSIGNED_INT, NULL);
 			glBindVertexArray(0);
@@ -484,7 +503,8 @@ int main()
 	crearCirculo();
 
 	// ObjetoSistemaSolar(glm::vec3 color, float escala, float velocidad_rotacion, float velocidad_rotacion_orbita, float distancia_centro, unsigned int VAO, unsigned int EBO_number_to_draw)
-	sol = ObjetoSistemaSolar(glm::vec3(1.0f, 4.0f, 0.0f), 25.0f, 0.5f, 0.0f, 0.0f, VAOEsfera, 1080);
+	sol = ObjetoSistemaSolar(glm::vec3(1.0f, 1.0f, 1.0f), 25.0f, 0.5f, 0.0f, 0.0f, VAOEsfera, 1080);
+	sol.setStrengths(1.0, 0.0, 0.0);
 	mercurio = ObjetoSistemaSolar(glm::vec3(0.48f, 0.49f, 0.05f), 3.0f, 0.5f, 2.0f, 10.0f, VAOEsfera, 1080);
 	venus = ObjetoSistemaSolar(glm::vec3(0.7f, 0.7f, 0.7f), 3.0f, 0.05f, 0.3f, 15.0f, VAOEsfera, 1080);
 	tierra = ObjetoSistemaSolar(glm::vec3(0.28f, 0.21f, 0.16f), 10.0f, 0.7f, 0.75f, 30.0f, VAOEsfera, 1080);
