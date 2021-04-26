@@ -325,7 +325,7 @@ void openGlInit() {
 	glClearDepth(1.0f); //Valor z-buffer
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //Borro el Buffer the la ventana
 	glEnable(GL_DEPTH_TEST); // z-buffer
-	glDisable(GL_CULL_FACE); //ocultacion caras back
+	glEnable(GL_CULL_FACE); //ocultacion caras back
 	glCullFace(GL_BACK);
 }
 
