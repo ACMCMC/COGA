@@ -16,20 +16,27 @@ void main()
 	float ambientI = 0.5f;
 	vec3 ambient = ambientI * lightColor;
 
-	// luz difusa
+	vec3 ld = normalize(-lightPos); // vector desde la luz hasta el origen
+	vec3 fragDir = normalize(FragPos - lightPos); // vector desde el fragmento hasta la luz
 	vec3 norm = normalize(Normal);
-	vec3 lightDir = normalize(lightPos - FragPos);
-	float diff = max(dot(norm, lightDir), 0.0f);
-	vec3 diffuse = diff * lightColor;
+	vec3 lightDir = normalize(lightPos - FragPos); // vector desde la luz hasta el fragmento
 
-	// luz especular
-	float specularStrength = 1.0f;
-	vec3 viewDir = normalize(viewPos - FragPos);
-	vec3 reflectDir = reflect(-lightDir, norm);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 128);
-	vec3 specular = specularStrength * spec * lightColor;
+	if (acos(dot(norm, lightDir)) < radians(20.0)) {
+		// luz difusa
+		float diff = max(dot(norm, lightDir), 0.0f);
+		vec3 diffuse = diff * lightColor;
 
-	// combinamos
-	vec3 result = (ambient + diffuse + specular) * objectColor;
-	FragColor = vec4 (result, 1.0f);
+		// luz especular
+		float specularStrength = 1.0f;
+		vec3 viewDir = normalize(viewPos - FragPos);
+		vec3 reflectDir = reflect(-lightDir, norm);
+		float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 128);
+		vec3 specular = specularStrength * spec * lightColor;
+
+		vec3 result = (ambient + diffuse + specular) * objectColor;
+		FragColor = vec4 (result, 1.0f);
+	} else {
+		vec3 result = (ambient) * objectColor;
+		FragColor = vec4 (result, 1.0f);
+	}
 }
