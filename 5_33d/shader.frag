@@ -16,10 +16,8 @@ void main()
 	float ambientI = 0.5f;
 	vec3 ambient = ambientI * lightColor;
 
-	vec3 ld = normalize(-lightPos); // vector desde la luz hasta el origen
-	vec3 fragDir = normalize(FragPos - lightPos); // vector desde el fragmento hasta la luz
 	vec3 norm = normalize(Normal);
-	vec3 lightDir = normalize(lightPos - FragPos); // vector desde la luz hasta el fragmento
+	vec3 lightDir = normalize(lightPos - FragPos); // vector desde el fragmento hasta la luz
 
 	if (acos(dot(norm, lightDir)) < radians(20.0)) {
 		// luz difusa
