@@ -206,7 +206,7 @@ glm::mat4 matPerspectiva() {
 }
 
 void drawAll(glm::vec3 from, glm::vec3 to, glm::mat4 projection) {
-	skybox.dibujar(from, to, projection);
+	skybox.dibujar(glm::vec3(1.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,0.0f), projection);
 	sol.dibujar(from, to, projection);
 	mercurio.dibujar(from, to, projection);
 	venus.dibujar(from, to, projection);
