@@ -109,7 +109,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		// load and generate the texture
-		int width = 1, height = 1, nrChannels = 3;
+		int width, height, nrChannels;
 		unsigned char* data = stbi_load(nombreArchivo, &width, &height, &nrChannels, 0);
 		if (data)
 		{
@@ -199,13 +199,14 @@ private:
 	}
 };
 
-ObjetoSistemaSolar sol, mercurio, venus, tierra, luna, iss_cuerpo_principal, iss_cuerpo_brazos, marte, jupiter, saturno, urano, neptuno;
+ObjetoSistemaSolar sol, mercurio, venus, tierra, luna, iss_cuerpo_principal, iss_cuerpo_brazos, marte, jupiter, saturno, urano, neptuno, skybox;
 
 glm::mat4 matPerspectiva() {
-	return glm::perspective(glm::radians(60.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
+	return glm::perspective(glm::radians(60.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 3000.0f);
 }
 
 void drawAll(glm::vec3 from, glm::vec3 to, glm::mat4 projection) {
+	skybox.dibujar(from, to, projection);
 	sol.dibujar(from, to, projection);
 	mercurio.dibujar(from, to, projection);
 	venus.dibujar(from, to, projection);
@@ -284,32 +285,32 @@ void crearCubo() {
 	unsigned int VBO, EBO;
 
 	float vertices[] = {
-	-0.5f, -0.5f, +0.5f, +0.0f, +0.0f, +1.0f, // 0  vertice inferior izquierdo de la cara frontal, normal hacia +z
-	-0.5f, -0.5f, -0.5f, +0.0f, +0.0f, -1.0f, // 1  vertice inferior derecho de la cara trasera, normal hacia -z
-	-0.5f, +0.5f, +0.5f, +0.0f, +0.0f, +1.0f, // 2  vertice superior izquierdo de la cara frontal, normal hacia +z
-	-0.5f, +0.5f, -0.5f, +0.0f, +0.0f, -1.0f, // 3  vertice superior derecho de la cara trasera, normal hacia -z
-	+0.5f, -0.5f, +0.5f, +0.0f, +0.0f, +1.0f, // 4  vertice inferior derecho de la cara frontal, normal hacia +z
-	+0.5f, -0.5f, -0.5f, +0.0f, +0.0f, -1.0f, // 5  vertice inferior izquierdo de la cara trasera, normal hacia -z
-	+0.5f, +0.5f, +0.5f, +0.0f, +0.0f, +1.0f, // 6  vertice superior derecho de la cara frontal, normal hacia +z
-	+0.5f, +0.5f, -0.5f, +0.0f, +0.0f, -1.0f, // 7  vertice superior izquierdo de la cara trasera, normal hacia -z
+	-0.5f, -0.5f, +0.5f, +0.0f, +0.0f, +1.0f, +0.0f, +0.0f, // 0  vertice inferior izquierdo de la cara frontal, normal hacia +z
+	-0.5f, -0.5f, -0.5f, +0.0f, +0.0f, -1.0f, +1.0f, +0.0f, // 1  vertice inferior derecho de la cara trasera, normal hacia -z
+	-0.5f, +0.5f, +0.5f, +0.0f, +0.0f, +1.0f, +0.0f, +1.0f, // 2  vertice superior izquierdo de la cara frontal, normal hacia +z
+	-0.5f, +0.5f, -0.5f, +0.0f, +0.0f, -1.0f, +1.0f, +1.0f, // 3  vertice superior derecho de la cara trasera, normal hacia -z
+	+0.5f, -0.5f, +0.5f, +0.0f, +0.0f, +1.0f, +1.0f, +0.0f, // 4  vertice inferior derecho de la cara frontal, normal hacia +z
+	+0.5f, -0.5f, -0.5f, +0.0f, +0.0f, -1.0f, +0.0f, +0.0f, // 5  vertice inferior izquierdo de la cara trasera, normal hacia -z
+	+0.5f, +0.5f, +0.5f, +0.0f, +0.0f, +1.0f, +1.0f, +1.0f, // 6  vertice superior derecho de la cara frontal, normal hacia +z
+	+0.5f, +0.5f, -0.5f, +0.0f, +0.0f, -1.0f, +0.0f, +1.0f, // 7  vertice superior izquierdo de la cara trasera, normal hacia -z
 
-	-0.5f, -0.5f, +0.5f, -1.0f, +0.0f, +0.0f, // 8  vertice inferior derecho de la cara izquierda, normal hacia -x
-	-0.5f, -0.5f, -0.5f, -1.0f, +0.0f, +0.0f, // 9  vertice inferior izquierdo de la cara izquierda, normal hacia -x
-	-0.5f, +0.5f, +0.5f, -1.0f, +0.0f, +0.0f, // 10 vertice superior derecho de la cara izquierda, normal hacia -x
-	-0.5f, +0.5f, -0.5f, -1.0f, +0.0f, +0.0f, // 11 vertice superior izquierdo de la cara izquierda, normal hacia -x
-	+0.5f, -0.5f, +0.5f, +1.0f, +0.0f, +0.0f, // 12 vertice inferior izquierdo de la cara derecha, normal hacia +x
-	+0.5f, -0.5f, -0.5f, +1.0f, +0.0f, +0.0f, // 13 vertice inferior derecho de la cara derecha, normal hacia +x
-	+0.5f, +0.5f, +0.5f, +1.0f, +0.0f, +0.0f, // 14 vertice superior izquierdo de la cara derecha, normal hacia +x
-	+0.5f, +0.5f, -0.5f, +1.0f, +0.0f, +0.0f, // 15 vertice superior derecho de la cara derecha, normal hacia +x
+	-0.5f, -0.5f, +0.5f, -1.0f, +0.0f, +0.0f, +0.0f, +0.0f, // 8  vertice inferior derecho de la cara izquierda, normal hacia -x
+	-0.5f, -0.5f, -0.5f, -1.0f, +0.0f, +0.0f, +1.0f, +0.0f, // 9  vertice inferior izquierdo de la cara izquierda, normal hacia -x
+	-0.5f, +0.5f, +0.5f, -1.0f, +0.0f, +0.0f, +0.0f, +1.0f, // 10 vertice superior derecho de la cara izquierda, normal hacia -x
+	-0.5f, +0.5f, -0.5f, -1.0f, +0.0f, +0.0f, +1.0f, +1.0f, // 11 vertice superior izquierdo de la cara izquierda, normal hacia -x
+	+0.5f, -0.5f, +0.5f, +1.0f, +0.0f, +0.0f, +1.0f, +0.0f, // 12 vertice inferior izquierdo de la cara derecha, normal hacia +x
+	+0.5f, -0.5f, -0.5f, +1.0f, +0.0f, +0.0f, +0.0f, +0.0f, // 13 vertice inferior derecho de la cara derecha, normal hacia +x
+	+0.5f, +0.5f, +0.5f, +1.0f, +0.0f, +0.0f, +1.0f, +1.0f, // 14 vertice superior izquierdo de la cara derecha, normal hacia +x
+	+0.5f, +0.5f, -0.5f, +1.0f, +0.0f, +0.0f, +0.0f, +1.0f, // 15 vertice superior derecho de la cara derecha, normal hacia +x
 
-	-0.5f, -0.5f, +0.5f, +0.0f, -1.0f, +0.0f, // 16 vertice superior izquierdo de la cara inferior, normal hacia -y
-	-0.5f, -0.5f, -0.5f, +0.0f, -1.0f, +0.0f, // 17 vertice inferior izquierdo de la cara inferior, normal hacia -y
-	-0.5f, +0.5f, +0.5f, +0.0f, +1.0f, +0.0f, // 18 vertice inferior izquierdo de la cara superior, normal hacia +y
-	-0.5f, +0.5f, -0.5f, +0.0f, +1.0f, +0.0f, // 19 vertice superior izquierdo de la cara superior, normal hacia +y
-	+0.5f, -0.5f, +0.5f, +0.0f, -1.0f, +0.0f, // 20 vertice superior derecho de la cara inferior, normal hacia -y
-	+0.5f, -0.5f, -0.5f, +0.0f, -1.0f, +0.0f, // 21 vertice inferior derecho de la cara inferior, normal hacia -y
-	+0.5f, +0.5f, +0.5f, +0.0f, +1.0f, +0.0f, // 22 vertice inferior derecho de la cara superior, normal hacia +y
-	+0.5f, +0.5f, -0.5f, +0.0f, +1.0f, +0.0f  // 23 vertice superior derecho de la cara superior, normal hacia +y
+	-0.5f, -0.5f, +0.5f, +0.0f, -1.0f, +0.0f, +0.0f, +0.0f, // 16 vertice superior izquierdo de la cara inferior, normal hacia -y
+	-0.5f, -0.5f, -0.5f, +0.0f, -1.0f, +0.0f, +1.0f, +0.0f, // 17 vertice inferior izquierdo de la cara inferior, normal hacia -y
+	-0.5f, +0.5f, +0.5f, +0.0f, +1.0f, +0.0f, +0.0f, +1.0f, // 18 vertice inferior izquierdo de la cara superior, normal hacia +y
+	-0.5f, +0.5f, -0.5f, +0.0f, +1.0f, +0.0f, +1.0f, +1.0f, // 19 vertice superior izquierdo de la cara superior, normal hacia +y
+	+0.5f, -0.5f, +0.5f, +0.0f, -1.0f, +0.0f, +1.0f, +0.0f, // 20 vertice superior derecho de la cara inferior, normal hacia -y
+	+0.5f, -0.5f, -0.5f, +0.0f, -1.0f, +0.0f, +0.0f, +0.0f, // 21 vertice inferior derecho de la cara inferior, normal hacia -y
+	+0.5f, +0.5f, +0.5f, +0.0f, +1.0f, +0.0f, +1.0f, +1.0f, // 22 vertice inferior derecho de la cara superior, normal hacia +y
+	+0.5f, +0.5f, -0.5f, +0.0f, +1.0f, +0.0f, +0.0f, +1.0f, // 23 vertice superior derecho de la cara superior, normal hacia +y
 	};
 
 	unsigned int indices[] = {
@@ -338,11 +339,14 @@ void crearCubo() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -557,6 +561,10 @@ int main()
 	crearCirculo();
 
 	// ObjetoSistemaSolar(glm::vec3 color, float escala, float velocidad_rotacion, float velocidad_rotacion_orbita, float distancia_centro, unsigned int VAO, unsigned int EBO_number_to_draw)
+	skybox = ObjetoSistemaSolar(glm::vec3(1.0f, 1.0f, 1.0f), 2000.0f, 0.05f, 0.0f, 0.0f, VAOEsfera, 1080, shaderObjeto, shaderOrbita);
+	skybox.setStrengths(1.0, 0.0, 0.0);
+	skybox.tipoPrimitivas = GL_TRIANGLE_STRIP;
+	skybox.cargarTextura("2k_stars.jpg");
 	sol = ObjetoSistemaSolar(glm::vec3(1.0f, 0.95f, 0.0f), 25.0f, 0.5f, 0.0f, 0.0f, VAOEsfera, 1080, shaderObjeto, shaderOrbita);
 	sol.setStrengths(1.0, 0.0, 0.0);
 	sol.cargarTextura("2k_sun.jpg");
@@ -569,7 +577,9 @@ int main()
 	luna = ObjetoSistemaSolar(glm::vec3(0.5f, 0.5f, 0.5f), 5.0f, 0.5f, 0.4f, 10.0f, VAOEsfera, 1080, shaderObjeto, shaderOrbita);
 	luna.cargarTextura("2k_moon.jpg");
 	iss_cuerpo_principal = ObjetoSistemaSolar(glm::vec3(0.3f, 0.3f, 0.3f), 5.0f, 0.3f, 0.3f, 5.0f, VAOCubo, 36, shaderObjeto, shaderOrbita);
+	iss_cuerpo_principal.cargarTextura("iss.jpg");
 	iss_cuerpo_brazos = ObjetoSistemaSolar(glm::vec3(0.3f, 0.3f, 0.3f), 5.0f, 0.3f, 0.0f, 0.0f, VAOCubo, 36, shaderObjeto, shaderOrbita);
+	iss_cuerpo_brazos.textura = iss_cuerpo_principal.textura;
 	marte = ObjetoSistemaSolar(glm::vec3(0.66f, 0.14f, 0.2f), 8.0f, 1.2f, 1.2f, 50.0f, VAOEsfera, 1080, shaderObjeto, shaderOrbita);
 	marte.cargarTextura("2k_mars.jpg");
 	jupiter = ObjetoSistemaSolar(glm::vec3(0.65f, 0.61f, 0.52f), 15.0f, 5.0f, 3.0f, 60.0f, VAOEsfera, 1080, shaderObjeto, shaderOrbita);
