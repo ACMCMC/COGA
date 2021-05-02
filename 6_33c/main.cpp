@@ -103,12 +103,12 @@ public:
 		stbi_set_flip_vertically_on_load(true);
 		glGenTextures(1, &textura);
 		glBindTexture(GL_TEXTURE_2D, textura);
-		// set the texture wrapping/filtering options (on the currently bound texture object)
+
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		// load and generate the texture
+
 		int width, height, nrChannels;
 		unsigned char* data = stbi_load(nombreArchivo, &width, &height, &nrChannels, 0);
 		if (data)
@@ -118,7 +118,7 @@ public:
 		}
 		else
 		{
-			std::cout << "Failed to load texture" << std::endl;
+			std::cout << "Error cargando textura" << std::endl;
 		}
 		stbi_image_free(data);
 	}
@@ -345,7 +345,7 @@ void crearCubo() {
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
